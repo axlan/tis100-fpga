@@ -144,10 +144,13 @@ def parse_input(lines):
 def bit_mask(nbits):
     return 2**nbits - 1
 
+def truncate_const(const):
+    return const & bit_mask(CONST_BITS)
+
 def output_code_to_int(output_code):
     combined = output_code.dst
     offset = TARGET_BITS
-    combined |= (output_code.const & bit_mask(CONST_BITS)) << offset
+    combined |= truncate_const(output_code.const) << offset
     offset += CONST_BITS
     combined |= output_code.src << offset
     offset += TARGET_BITS
@@ -175,7 +178,7 @@ def write_bin_csv_file(csv_file, output_codes):
     for output_code in output_codes:
         combined = f'{output_code.op:04b},'
         combined += f'{output_code.src:03b},'
-        const = output_code.const & bit_mask(CONST_BITS)
+        const = truncate_const(output_code.const)
         combined += f'{const:011b},'
         combined += f'{output_code.dst:03b}'
         lines.append(combined)
