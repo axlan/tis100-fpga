@@ -157,6 +157,15 @@ def write_hex_memory_file(hex_file, output_codes):
         lines.append(f'{combined:06x}')
     hex_file.write('\n'.join(lines))
 
+def write_hex_coe_file(coe_file, output_codes):
+    coe_file.write('memory_initialization_radix = 16;\n')
+    coe_file.write('memory_initialization_vector=\n')
+    lines = []
+    for output_code in output_codes:
+        combined = output_code_to_int(output_code)
+        lines.append(f'{combined:x}')
+    coe_file.write(',\n'.join(lines) + ';')
+
 def write_bin_csv_file(csv_file, output_codes):
     lines = []
     for output_code in output_codes:
@@ -184,12 +193,14 @@ def main(asm_file_name, out_file_name, output_type):
             OutType.memh: write_hex_memory_file,
             OutType.memb: write_bin_memory_file,
             OutType.csvb: write_bin_csv_file,
+            OutType.coeh: write_hex_coe_file
         }[output_type](fd, output_codes)
 
 class OutType(Enum):
     memh = 'memh'
     memb = 'memb'
     csvb = 'csvb'
+    coeh = 'coeh'
     def __str__(self):
         return self.value
 
