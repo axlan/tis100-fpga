@@ -72,7 +72,7 @@ def get_register_code(reg_name):
 def parse_input(lines):
     original_lines = list(lines)
     labels = {}
-    label_re = re.compile(r'([A-Z]+)\s*:')
+    label_re = re.compile(r'([A-Z0-9~`$%^&*()_\-+={}\[\]\|\\;\'"<>,.\?/]+)\s*:')
     output_codes = []
     # Find Labels and strip them and comments
     line_num = 0
@@ -100,6 +100,10 @@ def parse_input(lines):
             continue
         line_map.append(line_num + line_offset)
         line_num += 1
+    # If last line is label have it jump to first line
+    for key, val in labels.items():
+        if val >= len(lines):
+           labels[key] = 0 
     for line_num in range(len(lines)):
         line = lines[line_num]
         original_line = original_lines[line_map[line_num]]
@@ -220,7 +224,6 @@ if __name__ == "__main__":
                         help="sets output type")
     parser.add_argument("-o","--out_file",
                         default='out.mem',
-                        type=lambda x: is_valid_file(parser, x),
                         help="sets output file path")
     parser.add_argument("asm_file",
                         type=lambda x: is_valid_file(parser, x),
