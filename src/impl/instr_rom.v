@@ -20,6 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 module instr_rom(
         input clk,
+        input clk_en,
         input reset,
         input [3:0] op,
         input signed [10:0] acc,
@@ -51,7 +52,7 @@ module instr_rom(
         begin
             pc <= 0;
         end
-        else
+        else if(clk_en)
         begin
             if (jmp_en)
             begin
