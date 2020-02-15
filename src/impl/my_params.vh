@@ -32,7 +32,7 @@ localparam OUT_MUX_SEL_ALU = 1'd1;
 
 localparam INSTR_ALU_ADD = 2'b00;
 localparam INSTR_ALU_SUB = 2'b01;
-localparam INSTR_ALU_NEG = 2'b02;
+localparam INSTR_ALU_NEG = 2'b10;
 
 localparam INSTR_REG_READ = 2'b00;
 localparam INSTR_REG_WRITE = 2'b01;

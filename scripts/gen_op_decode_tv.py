@@ -18,8 +18,6 @@ INSTR_REG_WRITE = 1
 INSTR_REG_SWP = 2
 INSTR_REG_SAV = 3
 
-
-
 def test_opcode_decode(op_code):
     op = op_code >> 17
     src = op_code >> 14 & compiler.bit_mask(3)
@@ -49,7 +47,7 @@ def test_opcode_decode(op_code):
     else:
         in_mux_sel = IN_MUX_SEL_DIR
 
-    if alu_instr is None:
+    if op == compiler.OPCODES["MOV"].code:
         out_mux_sel = OUT_MUX_SEL_IN
     else:
         out_mux_sel = OUT_MUX_SEL_ALU

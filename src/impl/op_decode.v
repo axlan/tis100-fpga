@@ -33,7 +33,7 @@ module op_decode(
                              2'bx;
 
     assign in_mux_sel = (src == TARGET_NIL) ? IN_MUX_SEL_CONST :
-                        (op == TARGET_ACC) ? IN_MUX_SEL_ACC :
+                        (src == TARGET_ACC) ? IN_MUX_SEL_ACC :
                         IN_MUX_SEL_DIR;
 
     assign out_mux_sel = (op == OP_MOV) ? OUT_MUX_SEL_IN : OUT_MUX_SEL_ALU;
