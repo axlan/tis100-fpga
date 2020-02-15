@@ -6,10 +6,8 @@ module alu(
         input signed [10:0] src,
         output signed [10:0] out
     );
-    
-    localparam OP_ADD = 2'b00;
-    localparam OP_SUB = 2'b01;
-    
+    `include "my_params.vh"
+
     wire signed [10:0] neg_out;
     wire signed [11:0] add_tmp;
     wire signed [11:0] sub_tmp;
@@ -29,8 +27,8 @@ module alu(
         .out(sub_out)
     );
     
-     assign out = (instr == OP_ADD) ? add_out :
-          (instr == OP_SUB) ? sub_out :
+     assign out = (instr == INSTR_ALU_ADD) ? add_out :
+          (instr == INSTR_ALU_SUB) ? sub_out :
           neg_out;
     
 endmodule

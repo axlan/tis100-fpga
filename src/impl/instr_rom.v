@@ -22,7 +22,7 @@ module instr_rom(
         input clk,
         input clk_en,
         input reset,
-        input [3:0] op,
+        input [3:0] instr,
         input signed [10:0] acc,
         input signed [10:0] jmp_off,
         output [20:0] opcode
@@ -36,12 +36,12 @@ module instr_rom(
     wire signed [11:0] pc_jmp;
     wire signed [5:0] pc_ext;
    
-    assign jmp_en = (op == OP_JMP) ||
-                    (op == OP_JRO) ||
-                    (op == OP_JEZ && acc == 0) ||
-                    (op == OP_JNZ && acc != 0) ||
-                    (op == OP_JGZ && acc > 0) ||
-                    (op == OP_JLZ && acc < 0);
+    assign jmp_en = (instr == OP_JMP) ||
+                    (instr == OP_JRO) ||
+                    (instr == OP_JEZ && acc == 0) ||
+                    (instr == OP_JNZ && acc != 0) ||
+                    (instr == OP_JGZ && acc > 0) ||
+                    (instr == OP_JLZ && acc < 0);
     
     assign pc_ext = {1'b0, pc};
     assign pc_jmp = pc_ext + jmp_off;
