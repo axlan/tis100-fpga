@@ -104,7 +104,7 @@ if { $::argc > 0 } {
 }
 
 # Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/../../tis100"]"
+set orig_proj_dir "[file normalize "$origin_dir/tis100"]"
 
 # Create project
 create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7z020clg400-1
@@ -142,11 +142,11 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/../impl/rounder.v"] \
- [file normalize "${origin_dir}/../impl/alu.v"] \
- [file normalize "${origin_dir}/../impl/instr_rom.v"] \
- [file normalize "${origin_dir}/../impl/t21_node.v"] \
- [file normalize "${origin_dir}/../../data/test_opcodes.coe"] \
+ [file normalize "${origin_dir}/src/impl/rounder.v"] \
+ [file normalize "${origin_dir}/src/impl/alu.v"] \
+ [file normalize "${origin_dir}/src/impl/instr_rom.v"] \
+ [file normalize "${origin_dir}/src/impl/t21_node.v"] \
+ [file normalize "${origin_dir}/data/test_opcodes.coe"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -165,7 +165,7 @@ set_property -name "top_auto_set" -value "0" -objects $obj
 set obj [get_filesets sources_1]
 # Add local files from the original project (-no_copy_sources specified)
 set files [list \
- [file normalize "${origin_dir}/../../tis100/tis100.srcs/sources_1/ip/dist_mem_gen_0/dist_mem_gen_0.xci" ]\
+ [file normalize "${origin_dir}/src/ip/dist_mem_gen_0/dist_mem_gen_0.xci" ]\
 ]
 set added_files [add_files -fileset sources_1 $files]
 
@@ -203,20 +203,20 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 # Set 'sim_1' fileset object
 set obj [get_filesets sim_1]
 set files [list \
- [file normalize "${origin_dir}/instr_rom_tb.v"] \
- [file normalize "${origin_dir}/alu_tb.v"] \
- [file normalize "${origin_dir}/../../data/alu_tv.mem"] \
- [file normalize "${origin_dir}/../../data/instr_rom_tv.mem"] \
+ [file normalize "${origin_dir}/src/sim/instr_rom_tb.v"] \
+ [file normalize "${origin_dir}/src/sim/alu_tb.v"] \
+ [file normalize "${origin_dir}/data/alu_tv.mem"] \
+ [file normalize "${origin_dir}/data/instr_rom_tv.mem"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sim_1' fileset file properties for remote files
-set file "$origin_dir/../../data/alu_tv.mem"
+set file "$origin_dir/data/alu_tv.mem"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
 set_property -name "file_type" -value "Memory File" -objects $file_obj
 
-set file "$origin_dir/../../data/instr_rom_tv.mem"
+set file "$origin_dir/data/instr_rom_tv.mem"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
 set_property -name "file_type" -value "Memory File" -objects $file_obj
