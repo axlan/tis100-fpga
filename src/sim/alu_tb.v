@@ -28,7 +28,7 @@ begin
     end
     //$display (" %b %b %b %b %b ", a, b, c, d, yexpected);
     vectornum = vectornum + 1;
-    if (testvectors[vectornum] === 'bx) begin
+    if (testvectors[vectornum] === 35'bx) begin
         $display ("%d tests completed with %d errors", vectornum, errors);
 
         $finish;

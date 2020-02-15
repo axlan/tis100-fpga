@@ -70,8 +70,8 @@ module t21_node(
     registers registers_0(clk, clk_en, reset, registers_instr, dst_output, acc_reg);
 
     assign src_input = (in_mux_sel == IN_MUX_SEL_CONST) ? const :
-                        (in_mux_sel == IN_MUX_SEL_ACC) ? acc :
-                        dir;
+                        (in_mux_sel == IN_MUX_SEL_ACC) ? acc_reg :
+                        dir_output;
 
     assign dst_output = (out_mux_sel == OUT_MUX_SEL_IN) ? src_input :
                         alu_output;

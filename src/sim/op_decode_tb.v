@@ -52,7 +52,7 @@ begin
     check_output("out_mux_sel", out_mux_sel, out_mux_sel_expected);
     //$display (" %b %b %b %b %b ", a, b, c, d, yexpected);
     vectornum = vectornum + 1;
-    if (testvectors[vectornum] === 'bx) begin
+    if (testvectors[vectornum] === 43'bx) begin
         $display ("%d tests completed with %d errors", vectornum, errors);
 
         $finish;
