@@ -42,8 +42,13 @@ module t21_node(
     );
 
 
-    alu alu_0()
-    alu instr_rom()
+    
+    
+    // alu alu_0()
+    // instr_rom instr_rom_0()
+    
+    
+    
 
 
 

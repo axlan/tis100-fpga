@@ -1,5 +1,5 @@
 module instr_rom_tb();
-reg clk, reset;
+reg clk, reset, clk_en;
 reg [3:0] op;
 reg signed [10:0] acc, jmp_off;
 reg [20:0] out_expected;
@@ -9,7 +9,7 @@ reg [46:0] testvectors [10000:0];
 
 
 // instantiate device under test
-instr_rom dut(clk, reset, op, acc, jmp_off, out);
+instr_rom dut(clk, clk_en, reset, op, acc, jmp_off, out);
 
 // generate clock
 always
@@ -23,13 +23,15 @@ initial
 begin
     $readmemb("instr_rom_tv.mem", testvectors);
     vectornum = 0; errors = 0;
-    reset = 1; #27; reset = 0;
+    clk_en = 0;
+    reset = 1; #15; reset = 0;
+    #12; clk_en = 1;
 end
 
 // check results at falling edge of clock
 always @ (negedge clk)
 begin
-    if (~reset) begin
+    if (clk_en) begin
          if (out !== out_expected) begin
             $display ("Error: input %d", vectornum);
             $display (" outputs = %d (%d expected)", out, out_expected);
