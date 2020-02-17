@@ -124,15 +124,14 @@ set_property -name "platform.board_id" -value "microzed_7020" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
-set_property -name "webtalk.activehdl_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.ies_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.modelsim_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.questa_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.riviera_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.vcs_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.xcelium_export_sim" -value "1" -objects $obj
-set_property -name "webtalk.xsim_export_sim" -value "2" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "19" -objects $obj
+set_property -name "webtalk.activehdl_export_sim" -value "3" -objects $obj
+set_property -name "webtalk.ies_export_sim" -value "3" -objects $obj
+set_property -name "webtalk.modelsim_export_sim" -value "3" -objects $obj
+set_property -name "webtalk.questa_export_sim" -value "3" -objects $obj
+set_property -name "webtalk.riviera_export_sim" -value "3" -objects $obj
+set_property -name "webtalk.vcs_export_sim" -value "3" -objects $obj
+set_property -name "webtalk.xsim_export_sim" -value "3" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "108" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sources_1] ""]} {
@@ -142,11 +141,14 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/src/impl/rounder.v"] \
  [file normalize "${origin_dir}/src/impl/alu.v"] \
  [file normalize "${origin_dir}/src/impl/instr_rom.v"] \
+ [file normalize "${origin_dir}/src/impl/op_decode.v"] \
+ [file normalize "${origin_dir}/src/impl/registers.v"] \
+ [file normalize "${origin_dir}/src/impl/rounder.v"] \
  [file normalize "${origin_dir}/src/impl/t21_node.v"] \
  [file normalize "${origin_dir}/data/test_opcodes.coe"] \
+ [file normalize "${origin_dir}/src/impl/dir_manager.v"] \
 ]
 add_files -norecurse -fileset $obj $files
 
@@ -158,22 +160,19 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property -name "top" -value "alu" -objects $obj
+set_property -name "top" -value "t21_node" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
-# Add local files from the original project (-no_copy_sources specified)
 set files [list \
- [file normalize "${origin_dir}/src/ip/dist_mem_gen_0/dist_mem_gen_0.xci" ]\
+ [file normalize "${origin_dir}/src/ip/dist_mem_gen_0/dist_mem_gen_0.xci"] \
 ]
-set added_files [add_files -fileset sources_1 $files]
+add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-# None
-
-# Set 'sources_1' fileset file properties for local files
-set file "dist_mem_gen_0/dist_mem_gen_0.xci"
+set file "$origin_dir/src/ip/dist_mem_gen_0/dist_mem_gen_0.xci"
+set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
@@ -181,6 +180,9 @@ if { ![get_property "is_locked" $file_obj] } {
   set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
 }
 
+
+# Set 'sources_1' fileset file properties for local files
+# None
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
@@ -203,14 +205,26 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 # Set 'sim_1' fileset object
 set obj [get_filesets sim_1]
 set files [list \
+ [file normalize "${origin_dir}/src/impl/my_params.vh"] \
+ [file normalize "${origin_dir}/src/sim/dir_manager_tb.v"] \
+ [file normalize "${origin_dir}/src/sim/registers_tb.v"] \
  [file normalize "${origin_dir}/src/sim/instr_rom_tb.v"] \
+ [file normalize "${origin_dir}/src/sim/op_decode_tb.v"] \
  [file normalize "${origin_dir}/src/sim/alu_tb.v"] \
  [file normalize "${origin_dir}/data/alu_tv.mem"] \
  [file normalize "${origin_dir}/data/instr_rom_tv.mem"] \
+ [file normalize "${origin_dir}/data/registers_tv.mem"] \
+ [file normalize "${origin_dir}/data/op_decode_tv.mem"] \
+ [file normalize "${origin_dir}/data/dir_manager_tv.mem"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sim_1' fileset file properties for remote files
+set file "$origin_dir/src/impl/my_params.vh"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
+set_property -name "file_type" -value "Verilog Header" -objects $file_obj
+
 set file "$origin_dir/data/alu_tv.mem"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
@@ -221,15 +235,31 @@ set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
 set_property -name "file_type" -value "Memory File" -objects $file_obj
 
+set file "$origin_dir/data/registers_tv.mem"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
+set_property -name "file_type" -value "Memory File" -objects $file_obj
+
+set file "$origin_dir/data/op_decode_tv.mem"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
+set_property -name "file_type" -value "Memory File" -objects $file_obj
+
+set file "$origin_dir/data/dir_manager_tv.mem"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
+set_property -name "file_type" -value "Memory File" -objects $file_obj
+
 
 # Set 'sim_1' fileset file properties for local files
 # None
 
 # Set 'sim_1' fileset properties
 set obj [get_filesets sim_1]
-set_property -name "top" -value "instr_rom_tb" -objects $obj
+set_property -name "top" -value "dir_manager_tb" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
+set_property -name "xsim.simulate.runtime" -value "100us" -objects $obj
 
 # Set 'utils_1' fileset object
 set obj [get_filesets utils_1]

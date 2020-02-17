@@ -1,6 +1,7 @@
 .vscode/
 
 *.pyc
+**/.mypy_cache/
 
 .Xil/
 tis100/

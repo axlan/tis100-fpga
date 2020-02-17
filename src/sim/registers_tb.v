@@ -5,9 +5,6 @@ reg signed [10:0] input_val, out_expected;
 wire [10:0] out;
 reg [31:0] vectornum, errors;
 reg [24:0] testvectors [10000:0];
-wire [24:0] cur_vector;
-
-assign cur_vector = testvectors[vectornum];
 
 // instantiate device under test
 registers dut(clk, clk_en, reset, instr, input_val, out);
@@ -40,12 +37,12 @@ begin
         end
         //$display (" %b %b %b %b %b ", a, b, c, d, yexpected);
         vectornum = vectornum + 1;
-        if (cur_vector === 25'bx) begin
+        if (testvectors[vectornum] === 25'bx) begin
             $display ("%d tests completed with %d errors", vectornum, errors);
             $finish;
         end
     end
-    {instr, input_val, out_expected} = cur_vector;
+    {instr, input_val, out_expected} = testvectors[vectornum];
 end
 
 endmodule

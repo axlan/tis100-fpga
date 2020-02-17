@@ -1,5 +1,3 @@
-`ifndef _my_params_h
-`define _my_params_h
 localparam OP_NOP = 4'd0;
 localparam OP_MOV = 4'd1;
 localparam OP_SWP = 4'd2;
@@ -38,5 +36,3 @@ localparam INSTR_REG_READ = 2'b00;
 localparam INSTR_REG_WRITE = 2'b01;
 localparam INSTR_REG_SWP = 2'b10;
 localparam INSTR_REG_SAV = 2'b11;
-
-`endif
