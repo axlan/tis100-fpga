@@ -23,7 +23,6 @@
 # 2. The following source(s) files that were local or imported into the original project.
 #    (Please see the '$orig_proj_dir' and '$origin_dir' variable setting below at the start of the script)
 #
-#    "C:/Users/A/tis100/src/impl/rounder.v"
 #    "C:/Users/A/tis100/src/impl/alu.v"
 #    "C:/Users/A/tis100/src/impl/instr_rom.v"
 #    "C:/Users/A/tis100/src/impl/t21_node.v"
@@ -145,7 +144,6 @@ set files [list \
  [file normalize "${origin_dir}/src/impl/instr_rom.v"] \
  [file normalize "${origin_dir}/src/impl/op_decode.v"] \
  [file normalize "${origin_dir}/src/impl/registers.v"] \
- [file normalize "${origin_dir}/src/impl/rounder.v"] \
  [file normalize "${origin_dir}/src/impl/t21_node.v"] \
  [file normalize "${origin_dir}/data/test_opcodes.coe"] \
  [file normalize "${origin_dir}/src/impl/dir_manager.v"] \

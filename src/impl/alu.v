@@ -8,6 +8,17 @@ module alu(
     );
     `include "my_params.vh"
 
+    function [10:0] saturate;
+        input signed [11:0] in;
+        localparam MIN_VAL = -11'sd999;
+        localparam MAX_VAL = 11'sd999;
+        begin
+            saturate = (in < MIN_VAL) ? MIN_VAL :
+                       (in > MAX_VAL) ? MAX_VAL :
+                       in;  
+        end
+    endfunction
+
     wire signed [10:0] neg_out;
     wire signed [11:0] add_tmp;
     wire signed [11:0] sub_tmp;
@@ -18,14 +29,8 @@ module alu(
     assign add_tmp = acc + src;
     assign sub_tmp =  acc - src;
     
-    rounder round_add(
-        .in(add_tmp),
-        .out(add_out)
-    );
-    rounder round_sub(
-        .in(sub_tmp),
-        .out(sub_out)
-    );
+    assign add_out = saturate(add_tmp);
+    assign sub_out = saturate(sub_tmp);
     
      assign out = (instr == INSTR_ALU_ADD) ? add_out :
           (instr == INSTR_ALU_SUB) ? sub_out :

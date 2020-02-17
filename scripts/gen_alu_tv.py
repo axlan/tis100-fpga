@@ -8,7 +8,7 @@ OP_SUB = 1
 OP_NEG = 2
 
 
-def test_round(val):
+def test_saturate(val):
     return min(max(-compiler.CONST_MAX, val), compiler.CONST_MAX)
 
 def test_alu(instr, acc, src):
@@ -17,7 +17,7 @@ def test_alu(instr, acc, src):
         OP_SUB: acc - src,
         OP_NEG: -acc
     }[instr]
-    return test_round(res)
+    return test_saturate(res)
 
 def get_tv_line(instr, acc, src, out):
     combined = f'{instr:02b}_'
