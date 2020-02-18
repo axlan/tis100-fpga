@@ -2,6 +2,7 @@ import sys
 import re
 from collections import namedtuple
 from enum import Enum
+import pickle
 
 # Binary Opcode Format (len in bits):
 # [4 op][3 src][11 const][3 dst] = 21 bits
@@ -173,6 +174,9 @@ def write_hex_coe_file(coe_file, output_codes):
         lines.append(f'{combined:x}')
     coe_file.write(',\n'.join(lines) + ';')
 
+def write_pickle_file(pickle_file, output_codes):
+    pickle.dump( output_codes, pickle_file )
+
 def write_bin_csv_file(csv_file, output_codes):
     lines = []
     for output_code in output_codes:
@@ -195,12 +199,13 @@ def main(asm_file_name, out_file_name, output_type):
     with open(asm_file_name) as fd:
         lines = fd.readlines()
     output_codes = parse_input(lines)
-    with open(out_file_name, 'w') as fd:
+    with open(out_file_name, 'wb') as fd:
         {
             OutType.memh: write_hex_memory_file,
             OutType.memb: write_bin_memory_file,
             OutType.csvb: write_bin_csv_file,
-            OutType.coeh: write_hex_coe_file
+            OutType.coeh: write_hex_coe_file,
+            OutType.pick: write_pickle_file
         }[output_type](fd, output_codes)
 
 class OutType(Enum):
@@ -208,6 +213,7 @@ class OutType(Enum):
     memb = 'memb'
     csvb = 'csvb'
     coeh = 'coeh'
+    pick = 'pick'
     def __str__(self):
         return self.value
 

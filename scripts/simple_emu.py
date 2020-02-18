@@ -1,30 +1,31 @@
 from enum import Enum, auto
 from typing import Dict
+import pickle
 
+import compiler
+from compiler import OpCodeSections
 from gen_alu_tv import test_saturate
 
 class Operations(Enum):
-    NOP = auto()
-    MOV = auto()
-    SWP = auto()
-    SAV = auto()
-    ADD = auto()
-    SUB = auto()
-    NEG = auto()
-    JMP = auto()
-    JEZ = auto()
-    JNZ = auto()
-    JGZ = auto()
-    JLZ = auto()
-    JRO = auto()
+    NOP = compiler.OPCODES['NOP'].code
+    MOV = compiler.OPCODES['MOV'].code
+    SWP = compiler.OPCODES['SWP'].code
+    SAV = compiler.OPCODES['SAV'].code
+    ADD = compiler.OPCODES['ADD'].code
+    SUB = compiler.OPCODES['SUB'].code
+    NEG = compiler.OPCODES['NEG'].code
+    JMP = compiler.OPCODES['JMP'].code
+    JEZ = compiler.OPCODES['JEZ'].code
+    JNZ = compiler.OPCODES['JNZ'].code
+    JGZ = compiler.OPCODES['JGZ'].code
+    JLZ = compiler.OPCODES['JLZ'].code
+    JRO = compiler.OPCODES['JRO'].code
 
-MAX_VAL = 999
-
-TARGET_ACC = 1000
-TARGET_UP = 1001
-TARGET_DOWN = 1002
-TARGET_LEFT = 1003
-TARGET_RIGHT = 1004
+TARGET_ACC = compiler.Target.ACC.value * 1000
+TARGET_UP = compiler.Target.UP.value * 1000
+TARGET_DOWN = compiler.Target.DOWN.value * 1000
+TARGET_LEFT = compiler.Target.LEFT.value * 1000
+TARGET_RIGHT = compiler.Target.RIGHT.value * 1000
 
 def get_target_match(target):
     return {TARGET_UP: TARGET_DOWN,
@@ -33,7 +34,7 @@ def get_target_match(target):
             TARGET_RIGHT: TARGET_LEFT}[target]
 
 class Instruction:
-    def __init__(self, op: Operations, src, dst):
+    def __init__(self, op: Operations, src = 0, dst = 0):
         self.op = op
         self.src = src
         self.dst = dst
@@ -65,7 +66,7 @@ class TisNode:
         self.pc %= len(self.rom)
 
     def _get_target_val(self, target):
-        if target <= MAX_VAL:
+        if target <= compiler.CONST_MAX:
             return target
         if target == TARGET_ACC:
             return self.acc
@@ -219,20 +220,6 @@ class StreamOut(TisNode):
             return ''
         return f'D:{self.data[-1]}'
 
-IN_DATA = [ i for i in range (10) ]
-
-NODE1_INSTR = [
-    Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
-    Instruction(Operations.ADD, 1, TARGET_ACC),
-    Instruction(Operations.MOV, TARGET_ACC, TARGET_DOWN)
-]
-
-NODE2_INSTR = [
-    Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
-    Instruction(Operations.ADD, 10, TARGET_ACC),
-    Instruction(Operations.MOV, TARGET_ACC, TARGET_RIGHT)
-]
-
 def connect_nodes(nodes):
     for r, row in enumerate(nodes):
         for c, node in enumerate(row):
@@ -247,19 +234,54 @@ def connect_nodes(nodes):
             if c + 1 < len(row) and nodes[r][c+1] is not None:
                 node.neighbors[TARGET_RIGHT] = nodes[r][c+1]
 
+def read_pickle_file(pickle_file_name):
+    output_codes = pickle.load(open(pickle_file_name,'rb'))
+    lines = []
+    for output_code in output_codes:
+        op = Operations(output_code.op)
+        if output_code.src == compiler.Target.NIL.value:
+            src = output_code.const
+        else:
+            src = output_code.src * 1000
+        dst = output_code.dst * 1000
+        lines.append(Instruction(op, src, dst))
+    return lines
+
 def main():
    
-    node1 = TisNode('node1', NODE1_INSTR)
-    node2 = TisNode('node2', NODE2_INSTR)
+    # RUN_CYCLES = 100
+    # IN_DATA = [ i for i in range (10) ]
+    # NODE1_INSTR = [
+    #     Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
+    #     Instruction(Operations.ADD, 1, TARGET_ACC),
+    #     Instruction(Operations.MOV, TARGET_ACC, TARGET_DOWN)
+    # ]
+    # NODE2_INSTR = [
+    #     Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
+    #     Instruction(Operations.ADD, 10, TARGET_ACC),
+    #     Instruction(Operations.MOV, TARGET_ACC, TARGET_RIGHT)
+    # ]
+    # node1 = TisNode('node1', NODE1_INSTR)
+    # node2 = TisNode('node2', NODE2_INSTR)
+    # in_stream = StreamIn('in_stream', IN_DATA)
+    # out_stream = StreamOut('out_stream')
+    # nodes = [[in_stream, None],
+    #          [node1,     None],
+    #          [node2,     out_stream]]
+    
+    RUN_CYCLES = 600
+    IN_DATA = [ 5, 100 ]
+    NODE1_INSTR = read_pickle_file('data/test2.p')
     in_stream = StreamIn('in_stream', IN_DATA)
     out_stream = StreamOut('out_stream')
+    node1 = TisNode('node1', NODE1_INSTR)
 
-    nodes = [[in_stream, None],
-             [node1,     None],
-             [node2,     out_stream]]
+    nodes = [[in_stream],
+             [node1],
+             [out_stream]]
+    
     connect_nodes(nodes)
-
-    for _ in range(100):
+    for _ in range(RUN_CYCLES):
         for row in nodes:
             for node in row:
                 if node is not None:
