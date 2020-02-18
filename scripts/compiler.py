@@ -199,7 +199,11 @@ def main(asm_file_name, out_file_name, output_type):
     with open(asm_file_name) as fd:
         lines = fd.readlines()
     output_codes = parse_input(lines)
-    with open(out_file_name, 'wb') as fd:
+    if output_type == OutType.pick:
+        mode = 'wb'
+    else:
+        mode = 'w'
+    with open(out_file_name, mode) as fd:
         {
             OutType.memh: write_hex_memory_file,
             OutType.memb: write_bin_memory_file,

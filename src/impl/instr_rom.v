@@ -28,8 +28,11 @@ module instr_rom(
         output [20:0] opcode
     );
     `include "my_params.vh"
+    parameter MEM_INIT_FILE = "";
     parameter NUM_ENTRIES = 5'd10;
-    
+
+    reg [20:0] ram[31:0];
+
     reg [4:0] pc;
     wire jmp_en;
     
@@ -45,7 +48,15 @@ module instr_rom(
     
     assign pc_ext = {1'b0, pc};
     assign pc_jmp = pc_ext + jmp_off;
+
+    assign opcode = ram[pc];
     
+    initial begin
+        if (MEM_INIT_FILE != "") begin
+            $readmemb(MEM_INIT_FILE, ram);
+        end
+    end
+
     always @ (posedge clk)
     begin
         if (reset)
@@ -82,7 +93,5 @@ module instr_rom(
             end
         end
     end
-    
-    dist_mem_gen_0 rom(pc, opcode);
     
 endmodule

@@ -1,6 +1,8 @@
 module op_decode_tb();
 reg [20:0] op_code;
+wire [2:0] src;
 wire signed [10:0] const;
+wire [2:0] dst;
 wire [3:0] pc_instr;
 wire [1:0] alu_instr;
 wire [1:0] registers_instr;
@@ -17,7 +19,7 @@ reg [31:0] vectornum, errors;
 reg [42:0] testvectors [10000:0];
 
 // instantiate device under test
-op_decode dut(op_code, const, pc_instr, alu_instr, registers_instr, in_mux_sel, out_mux_sel);
+op_decode dut(op_code, src, const, dst, pc_instr, alu_instr, registers_instr, in_mux_sel, out_mux_sel);
 
 // at start of test, load vectors
 // and pulse reset

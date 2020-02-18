@@ -1,6 +1,8 @@
 module op_decode(
         input [20:0] op_code,
+        output [2:0] src,
         output signed [10:0] const,
+        output [2:0] dst,
         output [3:0] pc_instr,
         output [1:0] alu_instr,
         output [1:0] registers_instr,
@@ -10,7 +12,6 @@ module op_decode(
     `include "my_params.vh"
 
     wire [3:0] op;
-    wire [2:0] src, dst;
 
     assign op = op_code[20:17];
     assign src = op_code[16:14];

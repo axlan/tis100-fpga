@@ -9,7 +9,7 @@ reg [46:0] testvectors [10000:0];
 
 
 // instantiate device under test
-instr_rom dut(clk, clk_en, reset, op, acc, jmp_off, out);
+instr_rom  #("test_opcodes.mem", 10) dut(clk, clk_en, reset, op, acc, jmp_off, out);
 
 // generate clock
 always
