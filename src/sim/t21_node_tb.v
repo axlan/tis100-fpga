@@ -7,7 +7,6 @@ wire left_in_ready, right_in_ready, up_in_ready, down_in_ready;
 wire signed [10:0] left_out_data, right_out_data, up_out_data, down_out_data;
 wire left_out_valid, right_out_valid, up_out_valid, down_out_valid;
 reg left_out_ready, right_out_ready, up_out_ready, down_out_ready;
-wire signed [10:0] dir_src_data, dir_dst_data;
 
 // instantiate device under test
 t21_node #("test_mult.mem", 8) dut(
