@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module op_decode_tb();
 reg [20:0] op_code;
 wire [2:0] src;

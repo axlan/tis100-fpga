@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module alu_tb();
 reg signed [10:0] acc, src, out_expected;
 reg [1:0] instr;

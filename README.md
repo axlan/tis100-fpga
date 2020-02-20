@@ -10,7 +10,7 @@ My main resource was the links in <https://tis100.complexity.nl/links.html>. Ias
 
 # Progress
 
-Currently this codebase can generate a Vivado project that can run behavioral simulations of a a T21 node. The node is functional and should be exactly faithful in behavior to the game implementation. The one missing feature is the that the virtual ports ANY and LAST aren't supported. While I think it's possible to implement their behavior, it would require a much more complicated design.
+Currently this codebase can generate a Vivado project that can run behavioral simulations of a grid of T21 nodes. The nodes are functional and should be exactly faithful in behavior to the game implementation. The one missing feature is the that the virtual ports ANY and LAST aren't supported. While I think it's possible to implement their behavior, it would require a much more complicated design.
 
 Here's the schematic for the code:
 
@@ -22,7 +22,7 @@ In addition I've written a series of python scripts to aid in development and te
  * A basic emulator for running TIS code in Python
  * Tools for generating stimuli and verification data for the FPGA simulation unit tests
 
-The furthest test is running the following code in the full node:
+An example simulation is running the following code in a single node:
 
 ```
 MOV UP ACC
@@ -38,6 +38,16 @@ MOV ACC DOWN
 Feeding in [5, 100] gives the output [50, 999] in the behavioral simulation. Here's a waveform of some of the nets during the 5x10 calculation:
 
 <a href="docs/mult_sim.png"><img src="docs/mult_sim.png"/></a>
+
+Another simulation is able to correctly solve the 6th puzzle in the game "Sequence Generator" using two nodes.
+
+The code and input:
+
+<a href="docs/sig_gen_ex.png"><img src="docs/sig_gen_ex.png"/></a>
+
+The first 7 outputs from the simulator:
+
+<a href="docs/sig_gen_sim.png"><img src="docs/sig_gen_sim.png"/></a>
 
 # Instruction Format
 
@@ -112,7 +122,7 @@ It can load the compiler output and prints the register state for each time tick
 
 # Next Steps
 
-- [ ] Connect multiple nodes together using top level design file
+- [x] Connect multiple nodes together using top level design file
 - [ ] Connect to ARM in Zynq SoC over AXI (use as co-processor)
 - [ ] Have ability to view contents, load code, input, output
 - [ ] Be able to wire up in Xilinx Block designer

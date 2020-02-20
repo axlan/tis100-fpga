@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module instr_rom_tb();
 reg clk, reset, clk_en;
 reg [3:0] op;

@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module op_decode(
         input [20:0] op_code,
         output [2:0] src,

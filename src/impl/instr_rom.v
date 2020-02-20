@@ -82,7 +82,7 @@ module instr_rom(
             end
             else
             begin
-                if (pc === NUM_ENTRIES - 1)
+                if (pc == NUM_ENTRIES - 1)
                 begin
                     pc <= 0;
                 end

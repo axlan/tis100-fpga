@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module registers_tb();
 reg clk, reset, clk_en;
 reg [1:0] instr;

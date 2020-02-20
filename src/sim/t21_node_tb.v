@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module t21_node_tb();
 `include "my_params.vh"
 reg clk, reset;

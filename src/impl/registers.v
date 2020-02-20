@@ -22,15 +22,15 @@ module registers(
         end
         else if(clk_en)
         begin
-            if (instr === INSTR_REG_SWP || instr === INSTR_REG_SAV)
+            if (instr == INSTR_REG_SWP || instr == INSTR_REG_SAV)
             begin
                 bak <= acc;
-                if (instr === INSTR_REG_SWP)
+                if (instr == INSTR_REG_SWP)
                 begin
                     acc <= bak;
                 end
             end
-            else if (instr === INSTR_REG_WRITE)
+            else if (instr == INSTR_REG_WRITE)
             begin
                 acc <= val_in;
             end

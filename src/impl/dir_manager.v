@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module dir_manager(
         input clk,
         input reset,

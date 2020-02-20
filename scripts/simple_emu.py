@@ -247,31 +247,37 @@ def read_pickle_file(pickle_file_name):
         lines.append(Instruction(op, src, dst))
     return lines
 
-def main():
-   
-    # RUN_CYCLES = 100
-    # IN_DATA = [ i for i in range (10) ]
-    # NODE1_INSTR = [
-    #     Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
-    #     Instruction(Operations.ADD, 1, TARGET_ACC),
-    #     Instruction(Operations.MOV, TARGET_ACC, TARGET_DOWN)
-    # ]
-    # NODE2_INSTR = [
-    #     Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
-    #     Instruction(Operations.ADD, 10, TARGET_ACC),
-    #     Instruction(Operations.MOV, TARGET_ACC, TARGET_RIGHT)
-    # ]
-    # node1 = TisNode('node1', NODE1_INSTR)
-    # node2 = TisNode('node2', NODE2_INSTR)
-    # in_stream = StreamIn('in_stream', IN_DATA)
-    # out_stream = StreamOut('out_stream')
-    # nodes = [[in_stream, None],
-    #          [node1,     None],
-    #          [node2,     out_stream]]
-    
-    RUN_CYCLES = 600
+
+def test1():
+    run_cycles = 100
+    IN_DATA = [ i for i in range (10) ]
+    NODE1_INSTR = [
+        Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
+        Instruction(Operations.ADD, 1, TARGET_ACC),
+        Instruction(Operations.MOV, TARGET_ACC, TARGET_DOWN)
+    ]
+    NODE2_INSTR = [
+        Instruction(Operations.MOV, TARGET_UP, TARGET_ACC),
+        Instruction(Operations.ADD, 10, TARGET_ACC),
+        Instruction(Operations.MOV, TARGET_ACC, TARGET_RIGHT)
+    ]
+    node1 = TisNode('node1', NODE1_INSTR)
+    node2 = TisNode('node2', NODE2_INSTR)
+    in_stream = StreamIn('in_stream', IN_DATA)
+    out_stream = StreamOut('out_stream')
+    nodes = [[in_stream, None],
+             [node1,     None],
+             [node2,     out_stream]]
+    def on_done():
+        pass
+
+    return nodes, run_cycles, on_done
+
+
+def test_mult():
+    run_cycles = 600
     IN_DATA = [ 5, 100 ]
-    NODE1_INSTR = read_pickle_file('data/test2.p')
+    NODE1_INSTR = read_pickle_file('data/test_mult.p')
     in_stream = StreamIn('in_stream', IN_DATA)
     out_stream = StreamOut('out_stream')
     node1 = TisNode('node1', NODE1_INSTR)
@@ -279,9 +285,45 @@ def main():
     nodes = [[in_stream],
              [node1],
              [out_stream]]
+
+    def on_done():
+        print(out_stream.data)
+
+    return nodes, run_cycles, on_done
+
+def test_seq_gen():
+    run_cycles = 600
+    with open('data/seq_gen/seq_gen_ina.mem') as fd:
+        in_a = [ int(val, 16) for val in fd.readlines() ]
+    with open('data/seq_gen/seq_gen_inb.mem') as fd:
+        in_b = [ int(val, 16) for val in fd.readlines() ]
+    NODE1_INSTR = read_pickle_file('data/seq_gen/seq_gen_node1.p')
+    NODE2_INSTR = read_pickle_file('data/seq_gen/seq_gen_node2.p')
+    in_a_stream = StreamIn('in_a_stream', in_a)
+    in_b_stream = StreamIn('in_b_stream', in_b)
+    out_stream = StreamOut('out_stream')
+    node1 = TisNode('node1', NODE1_INSTR)
+    node2 = TisNode('node2', NODE2_INSTR)
+
+    nodes = [[in_a_stream, in_b_stream],
+             [node1,       node2],
+             [None,        out_stream]]
+
+    def on_done():
+        print(out_stream.data)
+        for i in out_stream.data:
+            print(f'{i:03x}')
+
+    return nodes, run_cycles, on_done
+
+def main():
+   
+    #nodes, run_cycles, on_done = test1()
+    #nodes, run_cycles, on_done = test_mult()
+    nodes, run_cycles, on_done = test_seq_gen()
     
     connect_nodes(nodes)
-    for _ in range(RUN_CYCLES):
+    for _ in range(run_cycles):
         for row in nodes:
             for node in row:
                 if node is not None:
@@ -291,8 +333,8 @@ def main():
                 if node is not None:
                     node.finalize()
                     print(node.status_str())
-
-    print(out_stream.data)
+    on_done()
+    
 
 if __name__ == "__main__":
     main()
