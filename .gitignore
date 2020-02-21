@@ -4,8 +4,10 @@
 **/.mypy_cache/
 
 .Xil/
-tis100/
 *.jou
 *.log
+
+work_dir/
+IP_repo/
 
 out.mem
