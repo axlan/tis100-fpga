@@ -126,6 +126,16 @@
 	integer	 byte_index;
 	reg	 aw_en;
 
+	// TIS100 Node nets
+	wire signed [10:0] up_in_data;
+	reg up_in_valid;
+	wire up_in_ready;
+	wire signed [10:0] down_out_data;
+	wire down_out_valid;
+	reg down_out_ready;
+
+	reg signed [10:0] last_read;
+	
 	// I/O Connections assignments
 
 	assign S_AXI_AWREADY	= axi_awready;
@@ -490,7 +500,7 @@
 	begin
 	      // Address decoding for reading registers
 	      case ( axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
-	        4'h0   : reg_data_out <= slv_reg0;
+	        4'h0   : reg_data_out <= { {C_S_AXI_DATA_WIDTH-11{last_read[10]}}, last_read};
 	        4'h1   : reg_data_out <= slv_reg1;
 	        4'h2   : reg_data_out <= slv_reg2;
 	        4'h3   : reg_data_out <= slv_reg3;
@@ -528,6 +538,57 @@
 	        end   
 	    end
 	end    
+
+
+	always @( posedge S_AXI_ACLK )
+	begin
+		if ( S_AXI_ARESETN == 1'b0 )
+		begin
+			down_out_ready <= 1'b1;
+			up_in_valid <= 1'b0;
+			last_read <= 11'd0;
+		end 
+		else
+		begin
+			if (slv_reg_rden && axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 4'h0)
+	        begin
+			    down_out_ready <= 1'b1;
+			end
+			if (slv_reg_wren && axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 4'h0)
+	        begin
+				up_in_valid <= 1'b1;
+	        end  
+			if (up_in_valid)
+			begin
+				if (up_in_ready)
+				begin
+					up_in_valid <= 1'b0;
+				end
+			end
+			if (down_out_ready)
+			begin
+				if (down_out_valid)
+				begin
+					last_read <= down_out_data;
+					down_out_ready <= 1'b0;
+				end
+			end
+		end
+	end
+
+	assign up_in_data = slv_reg0[10:0];
+	
+	// instantiate device under test
+	t21_node #("test_mult.mem", 8) dut(
+        .clk(S_AXI_ACLK),
+        .reset(~S_AXI_ARESETN),
+        .up_in_data(up_in_data),
+        .up_in_valid(up_in_valid),
+        .up_in_ready(up_in_ready),
+        .down_out_data(down_out_data),
+        .down_out_valid(down_out_valid),
+        .down_out_ready(down_out_ready)
+    );
 
 	// Add user logic here
 

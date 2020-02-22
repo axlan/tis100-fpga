@@ -137,8 +137,6 @@
 		.S_AXI_RREADY(s_axi_intr_rready),
 		.irq(irq)
 	);
-	
-	t21_node u0();
 
 	// Add user logic here
 
