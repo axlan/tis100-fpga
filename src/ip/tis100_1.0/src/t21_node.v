@@ -89,7 +89,7 @@ module t21_node(
     op_decode op_decode_0(op_code, src, const, dst, pc_instr, alu_instr, registers_instr, in_mux_sel, out_mux_sel);
 
     alu alu_0(alu_instr, acc_reg, src_input, alu_output);
-    instr_rom #(MEM_INIT_FILE, NUM_ENTRIES)  instr_rom_0(clk, clk_en, reset, pc_instr, acc_reg, src_input, op_code);
+    instr_ram #(MEM_INIT_FILE, NUM_ENTRIES)  instr_ram_0(clk, clk_en, reset, pc_instr, acc_reg, src_input, 1'd0, 5'd0, 21'd0, op_code);
     registers registers_0(clk, clk_en, reset, registers_instr, dst_output, acc_reg);
 
     assign src_input = (in_mux_sel == IN_MUX_SEL_CONST) ? const :

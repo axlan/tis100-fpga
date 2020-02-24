@@ -32,7 +32,7 @@
 #    "C:/Users/A/tis100/data/seq_gen/seq_gen_ina.mem"
 #    "C:/Users/A/tis100/src/ip/tis100_1.0/src/my_params.vh"
 #    "C:/Users/A/tis100/data/dir_manager_tv.mem"
-#    "C:/Users/A/tis100/data/instr_rom_tv.mem"
+#    "C:/Users/A/tis100/data/instr_ram_tv.mem"
 #    "C:/Users/A/tis100/data/seq_gen/seq_gen_node2.mem"
 #    "C:/Users/A/tis100/data/test_mult.mem"
 #    "C:/Users/A/tis100/data/registers_tv.mem"
@@ -50,9 +50,9 @@
 #    "C:/Users/A/tis100/src/sim/alu_tb.v"
 #    "C:/Users/A/tis100/src/ip/tis100_1.0/src/op_decode.v"
 #    "C:/Users/A/tis100/src/sim/registers_tb.v"
-#    "C:/Users/A/tis100/src/sim/instr_rom_tb.v"
+#    "C:/Users/A/tis100/src/sim/instr_ram_tb.v"
 #    "C:/Users/A/tis100/src/sim/dir_manager_tb.v"
-#    "C:/Users/A/tis100/src/ip/tis100_1.0/src/instr_rom.v"
+#    "C:/Users/A/tis100/src/ip/tis100_1.0/src/instr_ram.v"
 #    "C:/Users/A/tis100/src/ip/tis100_1.0/src/registers.v"
 #
 #*****************************************************************************************
@@ -223,9 +223,10 @@ set files [list \
  [file normalize "${origin_dir}/src/sim/alu_tb.v"] \
  [file normalize "${origin_dir}/src/ip/tis100_1.0/src/op_decode.v"] \
  [file normalize "${origin_dir}/src/sim/registers_tb.v"] \
+ [file normalize "${origin_dir}/src/sim/instr_ram_tb.v"] \
  [file normalize "${origin_dir}/src/sim/instr_rom_tb.v"] \
  [file normalize "${origin_dir}/src/sim/dir_manager_tb.v"] \
- [file normalize "${origin_dir}/src/ip/tis100_1.0/src/instr_rom.v"] \
+ [file normalize "${origin_dir}/src/ip/tis100_1.0/src/instr_ram.v"] \
  [file normalize "${origin_dir}/src/ip/tis100_1.0/src/registers.v"] \
 ]
 add_files -norecurse -fileset $obj $files
