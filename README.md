@@ -106,7 +106,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t {memh,memb,csvb,coeh,pick}, --type {memh,memb,csvb,coeh,pick}
+  -t {memh,memb,csvb,coeh,pick}, --type {memh,memb,csvb,coeh,pick, cu32}
                         sets output type
   -o OUT_FILE, --out_file OUT_FILE
                         sets output file path
@@ -121,6 +121,7 @@ The current output formats are:
  * csvb - memb, but each portion of instruction separated by comma
  * coeh - Xilinx coefficients file, see [here](https://www.xilinx.com/support/documentation/sw_manuals/xilinx11/cgn_r_coe_file_syntax.htm)
  * pick - python pickle used for emulator
+ * cu32 - a c array of 32 bit unsigned values. This is used to load instruction onto the TIS100 from the ARM CPU.
 
 For example to compile the multiplier code for the emulator:
 
@@ -147,8 +148,9 @@ To run on real hardware:
 
 - [x] Connect multiple nodes together using top level design file
 - [x] Connect to ARM in Zynq SoC over AXI (use as co-processor)
-- [ ] Have ability to view contents, load code, input, output
+- [x] Have ability to load code
 - [x] Be able to wire up in Xilinx Block designer
+- [ ] Set up a monitoring/control UI
 - [ ] Build from Lua Script
 
 # Misc Todo
@@ -156,4 +158,3 @@ To run on real hardware:
 - [ ] Refactor Testbenches to use tasks for code reuse
 - [ ] Add ANY and LAST targets for data (use 4 cycles to avoid multiple writes or reads to same node)
 - [ ] Improve testbench simulations to avoid needing to fully recompile each time (compile library?)
-- [ ] Comment and clean up code

@@ -70,7 +70,8 @@ t21_node #("seq_gen_node1.mem", 3) node1(
     .right_in_ready(node1_right_in_ready),
     .right_out_data(node1_right_out_data),
     .right_out_valid(node1_right_out_valid),
-    .right_out_ready(node1_right_out_ready)
+    .right_out_ready(node1_right_out_ready),
+    .write_en(0)
 );
 
 t21_node #("seq_gen_node2.mem", 12) node2(
@@ -87,7 +88,8 @@ t21_node #("seq_gen_node2.mem", 12) node2(
     .left_in_ready(node2_left_in_ready),
     .down_out_data(node2_down_out_data),
     .down_out_valid(node2_down_out_valid),
-    .down_out_ready(node2_down_out_ready)
+    .down_out_ready(node2_down_out_ready),
+    .write_en(0)
 );
 
 // generate clock

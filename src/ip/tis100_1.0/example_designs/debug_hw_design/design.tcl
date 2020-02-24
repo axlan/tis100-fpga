@@ -57,9 +57,6 @@ proc create_ipi_design { offsetfile design_name } {
 	connect_bd_intf_net [get_bd_intf_pins axi_peri_interconnect/M00_AXI] [get_bd_intf_pins tis100_0/S00_AXI]
 	connect_bd_net [get_bd_pins tis100_0/s00_axi_aclk] [get_bd_pins sys_clk_0/clk_out1]
 	connect_bd_net [get_bd_pins tis100_0/s00_axi_aresetn] [get_bd_pins sys_reset_0/peripheral_aresetn]
-	connect_bd_intf_net [get_bd_intf_pins axi_peri_interconnect/M01_AXI] [get_bd_intf_pins tis100_0/S_AXI_INTR]
-	connect_bd_net [get_bd_pins tis100_0/s_axi_intr_aclk] [get_bd_pins sys_clk_0/clk_out1]
-	connect_bd_net [get_bd_pins tis100_0/s_axi_intr_aresetn] [get_bd_pins sys_reset_0/peripheral_aresetn]
 
 	# Create instance: axi_gpio_irq, and set properties
 	set axi_gpio_irq [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_gpio_irq ]

@@ -27,14 +27,8 @@ proc create_ipi_design { offsetfile design_name } {
 	set master_1 [ create_bd_cell -type ip -vlnv  xilinx.com:ip:axi_vip master_1]
 	set_property -dict [ list CONFIG.PROTOCOL {AXI4LITE} CONFIG.INTERFACE_MODE {MASTER} ] $master_1
 
-	# Create interface connections
-	connect_bd_intf_net [get_bd_intf_pins master_1/M_AXI ] [get_bd_intf_pins tis100_0/S_AXI_INTR]
-
-	# Create port connections
-	connect_bd_net -net aclk_net [get_bd_ports ACLK] [get_bd_pins master_1/ACLK] [get_bd_pins tis100_0/S_AXI_INTR_ACLK]
-	connect_bd_net -net aresetn_net [get_bd_ports ARESETN] [get_bd_pins master_1/ARESETN] [get_bd_pins tis100_0/S_AXI_INTR_ARESETN]
-	set S_AXI_INTR_IRQ [ create_bd_port -dir O -type intr irq ]
-	connect_bd_net [get_bd_pins /tis100_0/irq] ${S_AXI_INTR_IRQ}
+	set S_AXI_IRQ [ create_bd_port -dir O -type intr irq ]
+	connect_bd_net [get_bd_pins /tis100_0/irq] ${S_AXI_IRQ}
 set_property target_simulator XSim [current_project]
 set_property -name {xsim.simulate.runtime} -value {100ms} -objects [get_filesets sim_1]
 

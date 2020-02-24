@@ -36,11 +36,18 @@ module t21_node(
         input signed up_out_ready,
         output signed [10:0] down_out_data,
         output down_out_valid,
-        input signed down_out_ready
+        input signed down_out_ready,
+        // controls whether to write a new instruction
+        input write_en,
+        // address to write new instruction
+        input [4:0] write_addr,
+        // new instruction to write.
+            //Writes must end with highest address instruction.
+        input [20:0] write_data
     );
     `include "my_params.vh"
-    parameter MEM_INIT_FILE = "test_mult.mem";
-    parameter NUM_ENTRIES = 5'd8;
+    parameter MEM_INIT_FILE = "";
+    parameter NUM_ENTRIES = 5'd0;
 
     // clk_en goes low to stall if dir_manager_0 needs to wait for an adjacent
         // node
@@ -89,7 +96,7 @@ module t21_node(
     op_decode op_decode_0(op_code, src, const, dst, pc_instr, alu_instr, registers_instr, in_mux_sel, out_mux_sel);
 
     alu alu_0(alu_instr, acc_reg, src_input, alu_output);
-    instr_ram #(MEM_INIT_FILE, NUM_ENTRIES)  instr_ram_0(clk, clk_en, reset, pc_instr, acc_reg, src_input, 1'd0, 5'd0, 21'd0, op_code);
+    instr_ram #(MEM_INIT_FILE, NUM_ENTRIES)  instr_ram_0(clk, clk_en, reset, pc_instr, acc_reg, src_input, write_en, write_addr, write_data, op_code);
     registers registers_0(clk, clk_en, reset, registers_instr, dst_output, acc_reg);
 
     assign src_input = (in_mux_sel == IN_MUX_SEL_CONST) ? const :

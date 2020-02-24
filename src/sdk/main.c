@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include "platform.h"
 #include "xil_printf.h"
-#include <tis100.h>
+#include "tis100_ctrl.h"
 #include <xparameters.h>
 #include <sleep.h>
 #include <xgpiops.h>
@@ -62,6 +62,18 @@
 XGpioPs gpio_ps;
 /*	The	driver	instance	for	GPIO	Device.	*/
 XGpioPs_Config *config_ptr;
+
+// output from `python scripts/compiler.py -t cu32 -o test.h data/test_mult.tis`
+u32 test_mult_instrs[] = {
+    0b000101000000000000001,
+    0b001000000000000000000,
+    0b010000000000001010000,
+    0b001000000000000000000,
+    0b010100000000000001000,
+    0b100100011111111100000,
+    0b001000000000000000000,
+    0b000100100000000000011
+};
 
 int main()
 {
@@ -82,26 +94,29 @@ int main()
 
 	XGpioPs_WritePin(&gpio_ps,	LED_PIN,	0);
 
-    print("Hello World\n\r");
+	print("Sending instructions\n\r");
+	TIS100_write_instructions(test_mult_instrs, sizeof(test_mult_instrs) / sizeof(u32));
 
-    TIS100_mWriteReg(XPAR_TIS100_0_S00_AXI_BASEADDR, TIS100_S00_AXI_SLV_REG2_OFFSET, 5);
-    print("Wrote 5 to reg2\n\r");
-    read = TIS100_mReadReg(XPAR_TIS100_0_S00_AXI_BASEADDR, TIS100_S00_AXI_SLV_REG2_OFFSET);
-    xil_printf("Read %d from reg2\n\r", read);
+    print("Waiting for user button\n\r");
 
     while(XGpioPs_ReadPin(&gpio_ps,	BUTTON_PIN) == 0);
 
-    TIS100_mWriteReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0, 5);
+
     print("Wrote 5 to reg0\n\r");
-    sleep(1);
-    read = TIS100_mReadReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0);
+    TIS100_write_to_in_stream(5);
+    while(!TIS100_is_ready_for_read()) {
+    	print("Wait\n\r");
+    }
+    read = TIS100_read_from_out_stream();
     xil_printf("Read %d from reg0\n\r", read);
 
 
-    TIS100_mWriteReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0, 100);
     print("Wrote 100 to reg0\n\r");
-    sleep(1);
-    read = TIS100_mReadReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0);
+    TIS100_write_to_in_stream(100);
+    while(!TIS100_is_ready_for_write()) {
+        	print("Wait\n\r");
+    }
+    read = TIS100_read_from_out_stream();
     xil_printf("Read %d from reg0\n\r", read);
 
     XGpioPs_WritePin(&gpio_ps,	LED_PIN,	1);

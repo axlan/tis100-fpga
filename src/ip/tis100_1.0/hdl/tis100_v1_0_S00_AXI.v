@@ -78,7 +78,9 @@
 		output wire  S_AXI_RVALID,
 		// Read ready. This signal indicates that the master can
     		// accept the read data and response information.
-		input wire  S_AXI_RREADY
+		input wire  S_AXI_RREADY,
+		// interrupt out port
+		output wire irq
 	);
 
 	// AXI4LITE signals
@@ -104,11 +106,23 @@
 	//-- Signals for user logic register space example
 	//------------------------------------------------
 	//-- Number of Slave Registers 16
-	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg0;
-	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg1;
-	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg2;
-	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg3;
-	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg4;
+	
+	// reg0
+	// write: send data to node up_in bus
+	// read: read data from down_out bust
+	reg [10:0]	slv_reg0_up_in_data;
+	// reg1
+	// read only irq status register bit 0: output_ready 1: ready_for_input
+	reg [1:0] slv_reg1_intr_sts;
+	// reg2
+	// r/w interrupt enable mask
+	reg [1:0]	slv_reg2_intr_en;
+	// reg3
+	// write instruction address
+	reg [4:0]	slv_reg3_instr_addr;
+	// reg 4
+	// write instruction value
+	reg [20:0]	slv_reg4_instr_data;
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg5;
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg6;
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg7;
@@ -127,7 +141,6 @@
 	reg	 aw_en;
 
 	// TIS100 Node nets
-	wire signed [10:0] up_in_data;
 	reg up_in_valid;
 	wire up_in_ready;
 	wire signed [10:0] down_out_data;
@@ -136,6 +149,7 @@
 
 	reg signed [10:0] last_read;
 	wire tis_reset;
+	reg write_en;
 	
 	// I/O Connections assignments
 
@@ -243,11 +257,10 @@
 	begin
 	  if ( S_AXI_ARESETN == 1'b0 )
 	    begin
-	      slv_reg0 <= 0;
-	      slv_reg1 <= 0;
-	      slv_reg2 <= 0;
-	      slv_reg3 <= 0;
-	      slv_reg4 <= 0;
+	      slv_reg0_up_in_data <= 0;
+	      slv_reg2_intr_en <= 0;
+	      slv_reg3_instr_addr <= 0;
+	      slv_reg4_instr_data <= 0;
 	      slv_reg5 <= 0;
 	      slv_reg6 <= 0;
 	      slv_reg7 <= 0;
@@ -265,40 +278,42 @@
 	      begin
 	        case ( axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
 	          4'h0:
-	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-	                // Respective byte enables are asserted as per write strobes 
-	                // Slave register 0
-	                slv_reg0[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-	              end  
-	          4'h1:
-	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-	                // Respective byte enables are asserted as per write strobes 
-	                // Slave register 1
-	                slv_reg1[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-	              end  
+			  	begin
+			  	  // Respective byte enables are asserted as per write strobes 
+	              // Slave register 0
+	              if ( S_AXI_WSTRB[0] == 1 ) begin
+	                slv_reg0_up_in_data[7:0] <= S_AXI_WDATA[7:0];
+	              end
+				  if ( S_AXI_WSTRB[1] == 1 ) begin
+	                slv_reg0_up_in_data[10:8] <= S_AXI_WDATA[10:8];
+	              end
+				end
 	          4'h2:
-	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-	                // Respective byte enables are asserted as per write strobes 
-	                // Slave register 2
-	                slv_reg2[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+			      // Respective byte enables are asserted as per write strobes 
+	              // Slave register 2
+	              if ( S_AXI_WSTRB[0] == 1 ) begin
+	                slv_reg2_intr_en[1:0] <= S_AXI_WDATA[1:0];
 	              end  
 	          4'h3:
-	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-	                // Respective byte enables are asserted as per write strobes 
-	                // Slave register 3
-	                slv_reg3[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+	              // Respective byte enables are asserted as per write strobes 
+	              // Slave register 3
+	              if ( S_AXI_WSTRB[0] == 1 ) begin
+	                slv_reg3_instr_addr[4:0] <= S_AXI_WDATA[4:0];
 	              end  
 	          4'h4:
-	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-	                // Respective byte enables are asserted as per write strobes 
-	                // Slave register 4
-	                slv_reg4[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-	              end  
+	           begin
+			  	  // Respective byte enables are asserted as per write strobes 
+	              // Slave register 0
+	              if ( S_AXI_WSTRB[0] == 1 ) begin
+	                slv_reg4_instr_data[7:0] <= S_AXI_WDATA[7:0];
+	              end
+				  if ( S_AXI_WSTRB[1] == 1 ) begin
+	                slv_reg4_instr_data[15:8] <= S_AXI_WDATA[15:8];
+	              end
+				  if ( S_AXI_WSTRB[2] == 1 ) begin
+	                slv_reg4_instr_data[20:16] <= S_AXI_WDATA[20:16];
+	              end
+				end
 	          4'h5:
 	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
 	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
@@ -377,11 +392,10 @@
 	                slv_reg15[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
 	              end  
 	          default : begin
-	                      slv_reg0 <= slv_reg0;
-	                      slv_reg1 <= slv_reg1;
-	                      slv_reg2 <= slv_reg2;
-	                      slv_reg3 <= slv_reg3;
-	                      slv_reg4 <= slv_reg4;
+	                      slv_reg0_up_in_data <= slv_reg0_up_in_data;
+	                      slv_reg2_intr_en <= slv_reg2_intr_en;
+	                      slv_reg3_instr_addr <= slv_reg3_instr_addr;
+	                      slv_reg4_instr_data <= slv_reg4_instr_data;
 	                      slv_reg5 <= slv_reg5;
 	                      slv_reg6 <= slv_reg6;
 	                      slv_reg7 <= slv_reg7;
@@ -503,10 +517,10 @@
 	      case ( axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
 		    // sign extend result from dut
 	        4'h0   : reg_data_out <= { {C_S_AXI_DATA_WIDTH-11{last_read[10]}}, last_read};
-	        4'h1   : reg_data_out <= slv_reg1;
-	        4'h2   : reg_data_out <= slv_reg2;
-	        4'h3   : reg_data_out <= slv_reg3;
-	        4'h4   : reg_data_out <= slv_reg4;
+	        4'h1   : reg_data_out <= { {C_S_AXI_DATA_WIDTH-2{1'b0}}, slv_reg1_intr_sts};
+	        4'h2   : reg_data_out <= slv_reg2_intr_en;
+	        4'h3   : reg_data_out <= slv_reg3_instr_addr;
+	        4'h4   : reg_data_out <= slv_reg4_instr_data;
 	        4'h5   : reg_data_out <= slv_reg5;
 	        4'h6   : reg_data_out <= slv_reg6;
 	        4'h7   : reg_data_out <= slv_reg7;
@@ -550,20 +564,25 @@
 			down_out_ready <= 1'b1;
 			up_in_valid <= 1'b0;
 			last_read <= 11'd0;
+			write_en <= 1'b0;
+			slv_reg1_intr_sts <= 2'b0;
 		end 
 		else
 		begin
-			// write data received in slv_reg0 over AXI to the up_in_data port of dut
+			slv_reg1_intr_sts <= {up_in_ready, !down_out_ready};
+			// write data received in slv_reg0_up_in_data over AXI to the up_in_data port of dut
 			if (slv_reg_rden && axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 4'h0)
 	        begin
 			    down_out_ready <= 1'b1;
 			end
 			// make next data output from down_out_data from dut available to a
-				// slv_reg0 AXI read
+				// slv_reg0_up_in_data AXI read
 			if (slv_reg_wren && axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 4'h0)
 	        begin
 				up_in_valid <= 1'b1;
-	        end  
+	        end
+			// write instruction written to slv_reg4_instr_data to slv_reg3_instr_addr
+			write_en <= slv_reg_wren && axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 4'h4;
 			if (up_in_valid)
 			begin
 				if (up_in_ready)
@@ -582,23 +601,23 @@
 		end
 	end
 
-	assign up_in_data = slv_reg0[10:0];
-	assign tis_reset = ~S_AXI_ARESETN;
+	assign tis_reset = write_en;
 	
 	// instantiate device under test
-	t21_node #("test_mult.mem", 8) dut(
+	t21_node dut(
         .clk(S_AXI_ACLK),
         .reset(tis_reset),
-        .up_in_data(up_in_data),
+        .up_in_data(slv_reg0_up_in_data),
         .up_in_valid(up_in_valid),
         .up_in_ready(up_in_ready),
         .down_out_data(down_out_data),
         .down_out_valid(down_out_valid),
-        .down_out_ready(down_out_ready)
+        .down_out_ready(down_out_ready),
+		.write_en(write_en),
+        .write_addr(slv_reg3_instr_addr),
+        .write_data(slv_reg4_instr_data)
     );
 
-	// Add user logic here
-
-	// User logic ends
+	assign irq = |(slv_reg2_intr_en & slv_reg1_intr_sts);
 
 	endmodule

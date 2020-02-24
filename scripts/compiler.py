@@ -165,6 +165,15 @@ def write_hex_memory_file(hex_file, output_codes):
         lines.append(f'{combined:06x}')
     hex_file.write('\n'.join(lines))
 
+def write_c_u32_array_file(header_file, output_codes):
+    lines = []
+    for output_code in output_codes:
+        combined = output_code_to_int(output_code)
+        lines.append(f'0b{combined:021b}')
+    header_file.write('u32 instrs[] = {\n    ')
+    header_file.write(',\n    '.join(lines))
+    header_file.write('\n};')
+
 def write_hex_coe_file(coe_file, output_codes):
     coe_file.write('memory_initialization_radix = 16;\n')
     coe_file.write('memory_initialization_vector=\n')
@@ -209,7 +218,8 @@ def main(asm_file_name, out_file_name, output_type):
             OutType.memb: write_bin_memory_file,
             OutType.csvb: write_bin_csv_file,
             OutType.coeh: write_hex_coe_file,
-            OutType.pick: write_pickle_file
+            OutType.pick: write_pickle_file,
+            OutType.cu32: write_c_u32_array_file
         }[output_type](fd, output_codes)
 
 class OutType(Enum):
@@ -218,6 +228,7 @@ class OutType(Enum):
     csvb = 'csvb'
     coeh = 'coeh'
     pick = 'pick'
+    cu32 = 'cu32'
     def __str__(self):
         return self.value
 

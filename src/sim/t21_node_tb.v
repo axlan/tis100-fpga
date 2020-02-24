@@ -37,7 +37,8 @@ t21_node #("test_mult.mem", 8) dut(
         up_out_ready,
         down_out_data,
         down_out_valid,
-        down_out_ready
+        down_out_ready,
+        1'd0, 5'd0, 21'd0
     );
 
 // generate clock

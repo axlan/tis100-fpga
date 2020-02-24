@@ -83,6 +83,11 @@ wire  S_AXI_RVALID;
 // Read ready. This signal indicates that the master can
     // accept the read data and response information.
 reg  S_AXI_RREADY;
+// interrupt out port
+wire irq;
+reg [20:0] testinstrs [31:0];
+reg [4:0] write_addr;
+reg [31:0] errors;
 
 // instantiate device under test
 tis100_v1_0_S00_AXI # ( 
@@ -109,8 +114,35 @@ tis100_v1_0_S00_AXI # (
 		.S_AXI_RDATA(S_AXI_RDATA),
 		.S_AXI_RRESP(S_AXI_RRESP),
 		.S_AXI_RVALID(S_AXI_RVALID),
-		.S_AXI_RREADY(S_AXI_RREADY)
+		.S_AXI_RREADY(S_AXI_RREADY),
+		.irq(irq)
     );
+
+task write_reg;
+input [3:0] reg_num;
+input [C_S_AXI_DATA_WIDTH-1:0] reg_data;
+begin
+    S_AXI_AWADDR = {reg_num, 2'd0};
+    S_AXI_AWVALID = 1'd1;
+    S_AXI_WDATA = reg_data;
+    S_AXI_WVALID = 1'd1;
+    #20;
+    S_AXI_AWVALID = 1'd0;
+    S_AXI_WVALID = 1'd0;
+    #10;
+end
+endtask
+
+task read_reg;
+input [3:0] reg_num;
+begin
+    S_AXI_ARADDR = {reg_num, 2'd0};
+    S_AXI_ARVALID = 1'd1;
+    #20;
+    S_AXI_ARVALID = 1'd0;
+    #10;
+end
+endtask
 
 // generate clock
 always
@@ -122,29 +154,72 @@ always
 // and pulse reset
 initial
 begin
-
+    errors = 0;
+    $readmemb("test_mult.mem", testinstrs);
     S_AXI_AWADDR = 6'd0;
     S_AXI_AWPROT = 3'd0;
     S_AXI_AWVALID = 1'd0;
     S_AXI_WDATA = 32'd0;
     S_AXI_WSTRB = 4'b1111;
     S_AXI_WVALID = 1'd0;
-    S_AXI_BREADY = 1'd0;
+    S_AXI_BREADY = 1'd1;
     S_AXI_ARADDR = 6'd0;
     S_AXI_ARPROT = 3'd0;
     S_AXI_ARVALID = 1'd0;
-    S_AXI_RREADY = 1'd0;
+    S_AXI_RREADY = 1'd1;
 
     reset = 0;
-    S_AXI_AWADDR = 6'd0;
-    S_AXI_AWVALID = 1'd1;
-    S_AXI_WDATA = 32'd5;
-    S_AXI_WVALID = 1'd1;
 
-
-    #23;
+    #15;
     reset = 1;
-    
+    #10;
+    // irq high on data out valid
+    write_reg(4'd2, 2'b01);
+    // load instructions into RAM
+    for (write_addr=0; testinstrs[write_addr] !== 21'bx; write_addr = write_addr + 5'd1)
+    begin
+        write_reg(4'd3, {{C_S_AXI_DATA_WIDTH-5{1'b0}}, write_addr});
+        write_reg(4'd4, {{C_S_AXI_DATA_WIDTH-21{1'b0}}, testinstrs[write_addr]});
+    end
+    #10;
+    if (irq) begin
+        $display ("Error: unexpected output irq");
+        errors = errors + 1;
+    end
+    // irq high on data in ready
+    write_reg(4'd2, 2'b10);
+    if (!irq) begin
+        $display ("Error: missing input irq");
+        errors = errors + 1;
+    end
+    #10;
+    // run 5 x 10
+    write_reg(4'd0, 5);
+    #10;
+    if (irq) begin
+        $display ("Error: unexpected input irq");
+        errors = errors + 1;
+    end
+    #20;
+    // irq high on data out valid
+    write_reg(4'd2, 2'b01);
+    #240;
+    if (!irq) begin
+        $display ("Error: missing output irq");
+        errors = errors + 1;
+    end
+    // run 4 x 10
+    write_reg(4'd0, 4);
+    #10;
+    // read 5 x 10 result
+    read_reg(4'd0);
+    if (S_AXI_RDATA !== 32'd50) begin
+        $display ("Error: incorrect 5x10 output: %d", S_AXI_RDATA);
+        errors = errors + 1;
+    end
+    $display ("5 tests completed with %d errors", errors);
+    $finish;
+
 end
 
 
