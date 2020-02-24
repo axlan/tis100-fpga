@@ -32,7 +32,7 @@ def test_opcode_decode(op_code):
     elif op == compiler.OPCODES["NEG"].code:
         alu_instr = INSTR_ALU_NEG
 
-    registers_instr = None
+    registers_instr = INSTR_REG_READ
     if op == compiler.OPCODES["MOV"].code or alu_instr is not None:
         registers_instr = INSTR_REG_WRITE
     elif op == compiler.OPCODES["SAV"].code:

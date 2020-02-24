@@ -1,1 +1,0 @@
-E:/Xilinx/Vivado/2019.2/bin/vivado.bat -mode batch -source tis100.tcl
