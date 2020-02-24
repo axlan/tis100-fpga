@@ -52,11 +52,35 @@
 #include <tis100.h>
 #include <xparameters.h>
 #include <sleep.h>
+#include <xgpiops.h>
+
+#define GPIO_DEVICE_ID		 XPAR_XGPIOPS_0_DEVICE_ID
+#define LED_PIN		47	/*	MIO47,	pin	connected	to	LED		*/
+#define BUTTON_PIN	51	/*	MIO51,	pin	connected	to	button	*/
+
+//	global	variables
+XGpioPs gpio_ps;
+/*	The	driver	instance	for	GPIO	Device.	*/
+XGpioPs_Config *config_ptr;
 
 int main()
 {
 	s32 read;
+	int status;
     init_platform();
+
+
+	//	initialize	the	GpioPs	driver.
+	config_ptr	=	XGpioPs_LookupConfig(GPIO_DEVICE_ID);
+	status	=	XGpioPs_CfgInitialize(&gpio_ps,	config_ptr,	config_ptr->BaseAddr);
+	if (status	!=	XST_SUCCESS)	{	return XST_FAILURE;	}
+	//	configure	the	LED	pin	as	output
+	XGpioPs_SetDirectionPin(&gpio_ps,	LED_PIN,	1);
+	XGpioPs_SetOutputEnablePin(&gpio_ps,	LED_PIN,	1);
+	//	Set	the	direction	for	the	specified	pin	to	be	input.
+	XGpioPs_SetDirectionPin(&gpio_ps,	BUTTON_PIN,	0);
+
+	XGpioPs_WritePin(&gpio_ps,	LED_PIN,	0);
 
     print("Hello World\n\r");
 
@@ -65,11 +89,22 @@ int main()
     read = TIS100_mReadReg(XPAR_TIS100_0_S00_AXI_BASEADDR, TIS100_S00_AXI_SLV_REG2_OFFSET);
     xil_printf("Read %d from reg2\n\r", read);
 
+    while(XGpioPs_ReadPin(&gpio_ps,	BUTTON_PIN) == 0);
+
     TIS100_mWriteReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0, 5);
     print("Wrote 5 to reg0\n\r");
     sleep(1);
     read = TIS100_mReadReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0);
     xil_printf("Read %d from reg0\n\r", read);
+
+
+    TIS100_mWriteReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0, 100);
+    print("Wrote 100 to reg0\n\r");
+    sleep(1);
+    read = TIS100_mReadReg(XPAR_TIS100_0_S00_AXI_BASEADDR, 0);
+    xil_printf("Read %d from reg0\n\r", read);
+
+    XGpioPs_WritePin(&gpio_ps,	LED_PIN,	1);
 
     cleanup_platform();
     return 0;
