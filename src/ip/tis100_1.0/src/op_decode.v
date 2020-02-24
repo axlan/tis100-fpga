@@ -1,14 +1,25 @@
 `timescale 1ns / 1ps
 
+// Module for decoding binary instructions
+
 module op_decode(
+        // binary instruction loaded from memory
         input [20:0] op_code,
+        // the source port to load from (only used for some instructions)
         output [2:0] src,
+        // the constant value store in the instruction (only used for some instructions)
         output signed [10:0] const,
+        // the destination port to write to (only used for some instructions)
         output [2:0] dst,
+        // code to control program counter with jump operations
         output [3:0] pc_instr,
+        // code to select arithmatic opterations
         output [1:0] alu_instr,
+        // code to control writing to ACC and BAK registers
         output [1:0] registers_instr,
+        // code to control routing input values
         output [1:0] in_mux_sel,
+        // code to control routing output values
         output out_mux_sel
     );
     `include "my_params.vh"

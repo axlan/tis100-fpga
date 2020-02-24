@@ -1,13 +1,20 @@
 `timescale 1ns / 1ps
 
+// Module to perform arithmatic operations
+
 module alu(
+        // Code to control the operation the ALU should perform. See my_params.vh
         input [1:0] instr,
+        // The current value of the acc register
         input signed [10:0] acc,
+        // The value to add/sub from the acc register
         input signed [10:0] src,
+        // Result from the ALU operation
         output signed [10:0] out
     );
     `include "my_params.vh"
 
+    // Saturate a 12 bit signed integer so it saturates at +-999
     function [10:0] saturate;
         input signed [11:0] in;
         localparam MIN_VAL = -11'sd999;

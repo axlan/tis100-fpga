@@ -1,30 +1,17 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 02/11/2020 05:34:23 PM
-// Design Name: 
-// Module Name: T21Node
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+// TIS100 T21 processing node
 
 module t21_node(
+        // synchronize with posedge of clk
         input clk,
+        // active high reset
         input reset,
+        // data incoming from node to the left
         input signed [10:0] left_in_data,
+        // is that incoming data valid
         input left_in_valid,
+        // will this node be able to read the data this cycle
         output signed left_in_ready,
         input signed [10:0] right_in_data,
         input right_in_valid,
@@ -35,8 +22,11 @@ module t21_node(
         input signed [10:0] down_in_data,
         input down_in_valid,
         output signed down_in_ready,
+        // data to send from this node to the node to the left
         output signed [10:0] left_out_data,
+        // is the output data valid this cycle
         output left_out_valid,
+        // will the other node read the data this cycle
         input signed left_out_ready,
         output signed [10:0] right_out_data,
         output right_out_valid,
@@ -52,23 +42,33 @@ module t21_node(
     parameter MEM_INIT_FILE = "test_mult.mem";
     parameter NUM_ENTRIES = 5'd8;
 
+    // clk_en goes low to stall if dir_manager_0 needs to wait for an adjacent
+        // node
     wire clk_en;
 
+    // current instruction to decode
     wire [20:0] op_code;
-
+    // code to control jumps
     wire [3:0] pc_instr;
+    // which source and destination port does the current operation use
     wire [2:0] src, dst;
+    // what arithmatic operation should be performed
     wire [1:0] alu_instr;
+    // how should the BAK and ACC registers be updated
     wire [1:0] registers_instr;
+    // controls source mux
     wire [1:0] in_mux_sel;
+    // controls destination mux
     wire out_mux_sel;
+    // constant value loaded from current instruction
     wire signed [10:0] const;
 
     wire signed [10:0] acc_reg, alu_output;
-
+    // data from selected source (ACC, direction port, or constant)
     wire signed [10:0] src_input;
+    // data to write to move destination (ALU output, or src_input)
     wire signed [10:0] dst_output;
-
+    // data read from direction source port
     wire signed [10:0] dir_output;
 
     dir_manager dir_manager_0(

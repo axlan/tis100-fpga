@@ -501,6 +501,7 @@
 	begin
 	      // Address decoding for reading registers
 	      case ( axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
+		    // sign extend result from dut
 	        4'h0   : reg_data_out <= { {C_S_AXI_DATA_WIDTH-11{last_read[10]}}, last_read};
 	        4'h1   : reg_data_out <= slv_reg1;
 	        4'h2   : reg_data_out <= slv_reg2;
@@ -545,16 +546,20 @@
 	begin
 		if ( S_AXI_ARESETN == 1'b0 )
 		begin
+			// be ready to read first value available from dut
 			down_out_ready <= 1'b1;
 			up_in_valid <= 1'b0;
 			last_read <= 11'd0;
 		end 
 		else
 		begin
+			// write data received in slv_reg0 over AXI to the up_in_data port of dut
 			if (slv_reg_rden && axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 4'h0)
 	        begin
 			    down_out_ready <= 1'b1;
 			end
+			// make next data output from down_out_data from dut available to a
+				// slv_reg0 AXI read
 			if (slv_reg_wren && axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 4'h0)
 	        begin
 				up_in_valid <= 1'b1;
