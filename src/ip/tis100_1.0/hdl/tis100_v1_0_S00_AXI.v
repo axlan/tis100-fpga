@@ -135,6 +135,7 @@
 	reg down_out_ready;
 
 	reg signed [10:0] last_read;
+	wire tis_reset;
 	
 	// I/O Connections assignments
 
@@ -577,11 +578,12 @@
 	end
 
 	assign up_in_data = slv_reg0[10:0];
+	assign tis_reset = ~S_AXI_ARESETN;
 	
 	// instantiate device under test
 	t21_node #("test_mult.mem", 8) dut(
         .clk(S_AXI_ACLK),
-        .reset(~S_AXI_ARESETN),
+        .reset(tis_reset),
         .up_in_data(up_in_data),
         .up_in_valid(up_in_valid),
         .up_in_ready(up_in_ready),

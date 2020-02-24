@@ -1,6 +1,3 @@
-
-################################################################
-# This is a generated script based on design: design_top
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -59,7 +56,7 @@ set run_remote_bd_flow 1
 if { $run_remote_bd_flow == 1 } {
   # Set the reference directory for source file relative paths (by default 
   # the value is script directory path)
-  set origin_dir C:/Users/A/tis100/src/bd
+	set origin_dir C:/Users/A/tis100/src/bd/../../IP_repo
 
   # Use origin directory path location variable, if specified in the tcl shell
   if { [info exists ::origin_dir_loc] } {

@@ -33,7 +33,7 @@ module op_decode(
                               || op == OP_NEG) ? INSTR_REG_WRITE :
                              (op == OP_SWP) ? INSTR_REG_SWP :
                              (op == OP_SAV) ? INSTR_REG_SAV :
-                             2'bx;
+                             INSTR_REG_READ;
 
     assign in_mux_sel = (src == TARGET_NIL) ? IN_MUX_SEL_CONST :
                         (src == TARGET_ACC) ? IN_MUX_SEL_ACC :
