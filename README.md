@@ -4,13 +4,17 @@ This project implements the processor from the game <http://www.zachtronics.com/
 
 The T21 node is the in game name for the processor that you're programming for the TIS100 system.
 
+This project was tested with a <http://zedboard.org/product/microzed>. This board uses a Zynq 7Z020 to allow communication between an FPGA and a ARM processor.
+
 # Prior Work
 
 My main resource was the links in <https://tis100.complexity.nl/links.html>. Ias pretty much all the resources I'd need along with source for a bunch of emulators.
 
+When I moved to using a block design in the project I used scripts created by marcel42 https://forums.xilinx.com/t5/Vivado-TCL-Community/Using-version-control-with-Vivado-in-project-mode/td-p/863202
+
 # Progress
 
-Currently this codebase can generate a Vivado project that can run behavioral simulations of a grid of T21 nodes. The nodes are functional and should be exactly faithful in behavior to the game implementation. The one missing feature is the that the virtual ports ANY and LAST aren't supported. While I think it's possible to implement their behavior, it would require a much more complicated design.
+Currently this codebase can generate a Vivado project that can run simulations of a grid of T21 nodes or run in realtime with a single node acting as a coprocessor to an ARM CPU. The nodes are functional and should be exactly faithful in behavior to the game implementation. The one missing feature is the that the virtual ports ANY and LAST aren't supported. While I think it's possible to implement their behavior, it would require a much more complicated design.
 
 Here's the schematic for the code:
 
@@ -39,6 +43,10 @@ Feeding in [5, 100] gives the output [50, 999] in the behavioral simulation. Her
 
 <a href="docs/mult_sim.png"><img src="docs/mult_sim.png"/></a>
 
+I also tested that this code could run in realtime on my Microzed board. Here you can see the serial output when the CPU sends the input into a wrapper for the TIS100 node.
+
+<a href="docs/good_serial_out.png"><img src="docs/good_serial_out.png"/></a>
+
 Another simulation is able to correctly solve the 6th puzzle in the game "Sequence Generator" using two nodes.
 
 The code and input:
@@ -60,17 +68,21 @@ I created my own binary representation of the TIS100 instructions. The format is
  * const is a constant immediate value (for example the 5 in `ADD 5`)
  * dst is the destination register
 
-All jump instructions are given as relative jumps from the current instruction.
+All jump instructions use the const field to give the absolute address to jump to.
 
 See [compiler source](scripts/compiler.py) for more details
 
 # Usage
 
-I was doing development from windows, but I used Git Bash as the terminal since I'm more comfortable scripting in Bash than Batch Script. These scripts should work with minor modification on Linux, or you can use a similar setup on Windows.
+This project targets [Xilinx Vitis + Vivado](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis.html) version 2019.2 .
+
+I was doing development from windows, but I used Git Bash as the terminal since I'm more comfortable scripting in Bash than Batch Script. These scripts should work with minor modification on Linux, or you can use a similar setup on Windows. I adapted the scripts from https://forums.xilinx.com/t5/Vivado-TCL-Community/Using-version-control-with-Vivado-in-project-mode/td-p/863202 once I added the complexity of managing design block files.
+
+Some of the scripts assume you have Python3, Vitis, and Vivado bin directories added to the PATH environment variable.
 
 ## To generate the Vivado project
 
-`./build.sh`
+`sh from_git.sh`
 
 This creates a directory `tis100/`. To rerun the build script you must first delete this directory. You can then open the Vivado project and use the GUI.
 
@@ -120,12 +132,23 @@ This is a pretty bare bones implementation for testing purposes. Right now the i
 
 It can load the compiler output and prints the register state for each time tick.
 
+## Real hardware
+
+To run on real hardware:
+1. Generate the Vivado project using `from_git.sh` as mentioned above.
+2. Generate the bitstream and export the hardware design. Run `sh scripts/generate_bitstream.sh` or open the generated Vivado project and and use the UI.
+3. Create a Vitis workspace by running `sh src/sdk/make_workspace.sh` 
+4. Open the generated workspace in Vitis and build the project.
+5. Copy the `BOOT.BIN` to an empty FAT formated SD card, and make sure the jumpers are in the correct position for an SD card boot.
+6. Connect the MicroZed to the PC with the USB cable, and connect to the COM port with a serial terminal at 115200 baud. Then press the usr button and see the results output over serial.
+7. To run with JTAG connect a Digilent HS2 to the Microzed. Click on the dropdown next to run and open `Run Configurations`. Create a new `Single Application Debug` and run.
+
 # Next Steps
 
 - [x] Connect multiple nodes together using top level design file
-- [ ] Connect to ARM in Zynq SoC over AXI (use as co-processor)
+- [x] Connect to ARM in Zynq SoC over AXI (use as co-processor)
 - [ ] Have ability to view contents, load code, input, output
-- [ ] Be able to wire up in Xilinx Block designer
+- [x] Be able to wire up in Xilinx Block designer
 - [ ] Build from Lua Script
 
 # Misc Todo

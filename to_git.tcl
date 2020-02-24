@@ -48,8 +48,8 @@ set block_origin_dir $origin_dir/src/bd
 set project_name [file rootname [file tail [findFiles $origin_dir "*.xpr"]]]
  
 #Opening the project
-puts $origin_dir/work_dir/$project_name.xpr
-open_project $origin_dir/work_dir/$project_name.xpr
+puts $origin_dir/tis100/$project_name.xpr
+open_project $origin_dir/tis100/$project_name.xpr
 
 #Creating the block designs from the tcl scripts
 source $origin_dir/src/bd/block_design_tcl.tcl

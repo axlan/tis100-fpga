@@ -9,7 +9,7 @@ REM ##########################################################
 
 REM Removing those directories from the project
 rmdir /s /q %~dp0\IP_repo
-rmdir /s /q %~dp0\work_dir
+rmdir /s /q %~dp0\tis100
 rmdir /s /q %~dp0\.Xil
 
 REM Making a new IP_repo directory
