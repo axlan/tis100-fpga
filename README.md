@@ -6,6 +6,8 @@ The T21 node is the in game name for the processor that you're programming for t
 
 This project was tested with a <http://zedboard.org/product/microzed>. This board uses a Zynq 7Z020 to allow communication between an FPGA and a ARM processor.
 
+For a blog post on some of the design and debug process, check out <https://www.robopenguins.com/tis100-on-fpga/>
+
 # Prior Work
 
 My main resource was the links in <https://tis100.complexity.nl/links.html>. It had pretty much all the resources I'd need along with source for a bunch of emulators.
