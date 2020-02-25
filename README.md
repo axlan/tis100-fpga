@@ -8,7 +8,7 @@ This project was tested with a <http://zedboard.org/product/microzed>. This boar
 
 # Prior Work
 
-My main resource was the links in <https://tis100.complexity.nl/links.html>. Ias pretty much all the resources I'd need along with source for a bunch of emulators.
+My main resource was the links in <https://tis100.complexity.nl/links.html>. It had pretty much all the resources I'd need along with source for a bunch of emulators.
 
 When I moved to using a block design in the project I used scripts created by marcel42 https://forums.xilinx.com/t5/Vivado-TCL-Community/Using-version-control-with-Vivado-in-project-mode/td-p/863202
 
@@ -46,6 +46,8 @@ Feeding in [5, 100] gives the output [50, 999] in the behavioral simulation. Her
 I also tested that this code could run in realtime on my Microzed board. Here you can see the serial output when the CPU sends the input into a wrapper for the TIS100 node.
 
 <a href="docs/good_serial_out.png"><img src="docs/good_serial_out.png"/></a>
+
+[![Video walkthrough](https://img.youtube.com/vi/WQfV7bC7NvE/0.jpg)](https://www.youtube.com/watch?v=WQfV7bC7NvE)
 
 Another simulation is able to correctly solve the 6th puzzle in the game "Sequence Generator" using two nodes.
 
